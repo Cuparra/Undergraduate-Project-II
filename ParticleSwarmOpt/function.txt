@@ -1,0 +1,113 @@
+}
+
+/*
+void EvaluateParticles(Swarm *S){
+
+    int i,j,t;
+    Particle *p = S->particle;
+
+    for(i=0;i<P_SIZE;i++){
+
+        double total    = 0;
+        double *x       = p[i].currPosition;
+
+        for(j=0;j<loop;j++){
+
+            int k           = 2*j;
+            double dist     = sqrt(x[k]*x[k] + x[k+1]*x[k+1]);
+            total          += MAX( dist + RADIUS - fabs(x[v_size-1]) );
+
+            for(t=j+1; t<loop ;t++){
+
+                int l = 2*t;
+                total += MAX(4*RADIUS*RADIUS - (x[k] - x[l])*(x[k] - x[l]) - (x[k+1]-x[l+1])*(x[k+1]-x[l+1]) );
+            }
+        }
+        
+        p[i].currFit    = fabs(x[v_size-1]) + lambda*(total);
+        p[i].currConst  = total;
+    }
+
+    lambda*=mult;
+}*/
+
+double get_mean(double *v){
+
+    int i;
+    double mean = 0;
+
+    for(i=0;i<30;i++)
+        mean += v[i];
+
+
+    return (1.0*mean)/30;
+}
+
+
+double get_std_dev(double *v, double mean){
+
+    int i;
+    double std = 0;
+
+    for(i=0;i<30;i++)
+        std += (v[i] - mean)*(v[i] - mean);
+
+
+    return sqrt( (1.0*std)/30 );
+}
+
+
+void create_stat(){
+
+    int i,j;
+
+    FILE *fptr = fopen("Result_PSO.txt3","w");
+
+    for(i=25;i<31;i++){
+       
+        time_t t;
+        srand((unsigned) time(&t));
+
+        double vec[30];
+        double err[30];
+
+        double total    = 0;
+        v_size          = 2*i+1;
+        loop            = (v_size-1)/2;
+        mult            = pow( pow(10,15), 1.0/iteration );
+        double limit    = 10*ceil(sqrt( (v_size-1)/2 ));
+
+        iteration       = find_int(i-1);
+
+        fprintf(fptr, "Number of Itens %d:\n", i);
+
+        for(j=1;j<30;j++){
+
+            lambda          = 10;
+
+            Swarm *S        = InicializeSwarm(P_SIZE,v_size,0.6,limit,-limit,iteration);
+            Particle *best  = ExecuteSwarm(S,EvaluateParticles);
+
+            vec[j-1] = best->bestFit;
+            err[j-1] = best->bestConst;
+            
+            fprintf(fptr, "Iteration[%d]: %.15lf, %.15lf\n", j, vec[j-1], err[j-1]);
+        }
+
+        double mean     = get_mean(vec);
+        double std_dev  = get_std_dev(vec,mean);
+
+        fprintf(fptr, "Mean: %.15lf \n", mean);
+        fprintf(fptr, "Std_dev: %.15lf \n", std_dev);
+        printf("%d %.15lf %.15lf\n ",i,mean,std_dev);
+
+        mean     = get_mean(err);
+        std_dev  = get_std_dev(err,mean);
+
+        fprintf(fptr, "Error Mean: %.15lf \n", mean);
+        fprintf(fptr, "Error td_dev: %.15lf \n\n", std_dev);
+        printf("%d %.15lf %.15lf\n ",i,mean,std_dev);
+    }
+
+
+}
