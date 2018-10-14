@@ -7,3 +7,5 @@ to solve instances with thirty to fifty circles. Thus, the objective was to deve
 bio-inspired heuristic that gives “good” results. Numerical experiments show that the proposed
 heuristic takes few seconds to solve each instance with solutions up to 4% worse than an exact
 method, in most cases.
+
+The dissertation is in the file tcc2.pdf.
